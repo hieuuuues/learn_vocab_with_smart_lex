@@ -739,7 +739,6 @@
     </div>
 
     <div class="notification" id="notification"></div>
-
     <script>
       const LZString = {
         compressToBase64: function (str) {
@@ -1199,7 +1198,19 @@
           userCode: userCode,
           folders: folders,
           theme: localStorage.getItem("theme") || "light",
+          flashcards: {},
         };
+
+        for (let day = 1; day <= 7; day++) {
+          folders[`day${day}`].forEach((folder) => {
+            const folderFlashcards = localStorage.getItem(
+              `flashcards_${folder.id}`
+            );
+            if (folderFlashcards) {
+              dataToExport.flashcards[folder.id] = JSON.parse(folderFlashcards);
+            }
+          });
+        }
 
         const code = Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -1297,6 +1308,15 @@
           folders = importedData.folders;
           localStorage.setItem("userCode", userCode);
           localStorage.setItem("vocabularyFolders", JSON.stringify(folders));
+
+          if (importedData.flashcards) {
+            Object.keys(importedData.flashcards).forEach((folderId) => {
+              localStorage.setItem(
+                `flashcards_${folderId}`,
+                JSON.stringify(importedData.flashcards[folderId])
+              );
+            });
+          }
 
           const themeToggle = document.getElementById("themeToggle");
           if (importedData.theme === "dark") {
